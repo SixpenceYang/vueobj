@@ -1,26 +1,25 @@
 <template>
   <div id="home">
     <nav-bar class="home-nav"><div slot="center">购物街</div></nav-bar>
-    <swiper>
-      <swiper-item v-for="(item, index) in banners">
-        <a :href="item.link">
-          <img :src="item.image" alt="" />
-        </a>
-      </swiper-item>
-    </swiper>
+    <home-swiper :banners="banners"></home-swiper>
+    <recommend-view :recommends="recommends" />
+    <feature-view></feature-view>
   </div>
 </template>
 
 <script>
 import NavBar from "../../components/common/navbar/NavBar.vue";
+import HomeSwiper from "./childComps/HomeSwiper.vue";
+import RecommendView from "./childComps/RecommendView.vue";
+import featureView from "./childComps/featureView.vue";
 import { getHomeMultidata } from "../../network/home";
-import { Swiper, SwiperItem } from "../../components/common/swiper";
 
 export default {
   components: {
     NavBar,
-    Swiper,
-    SwiperItem,
+    HomeSwiper,
+    RecommendView,
+    featureView,
   },
   data() {
     return {
