@@ -1,17 +1,15 @@
 <template>
-    <div id="tab-bar">
-        <slot/>
-    </div>
+  <div id="tab-bar">
+    <slot />
+  </div>
 </template>
 
 <script>
-export default {
-
-}
+export default {};
 </script>
 
-<style>
-#tab-bar{
+<style scoped>
+#tab-bar {
   display: flex;
   background: #f6f6f6;
   height: 49px;

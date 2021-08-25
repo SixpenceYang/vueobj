@@ -1,13 +1,18 @@
 <template>
   <div id="home">
     <nav-bar class="home-nav"><div slot="center">购物街</div></nav-bar>
-    <home-swiper :banners="banners"></home-swiper>
-    <recommend-view :recommends="recommends" />
-    <feature-view></feature-view>
-    <tab-control
-      :titles="['流行', '新款', '精选']"
-      class="tabcontrol"
-    ></tab-control>
+
+    <scroll class="content">
+      <home-swiper :banners="banners"></home-swiper>
+      <recommend-view :recommends="recommends" />
+      <feature-view></feature-view>
+      <tab-control
+        :titles="['流行', '新款', '精选']"
+        class="tabcontrol"
+        @tabClick="tabClick"
+      ></tab-control>
+      <goods-list :goods="goods[currentType].list"></goods-list>
+    </scroll>
   </div>
 </template>
 
@@ -18,8 +23,10 @@ import featureView from "./childComps/featureView.vue";
 
 import NavBar from "../../components/common/navbar/NavBar.vue";
 import TabControl from "../../components/content/tabControl/TabControl.vue";
+import GoodsList from "../../components/content/goods/GoodsList.vue";
+import Scroll from "../../components/common/scroll/Scroll.vue";
 
-import { getHomeMultidata } from "../../network/home";
+import { getHomeMultidata, getHomeGoods } from "../../network/home";
 
 export default {
   components: {
@@ -28,18 +35,71 @@ export default {
     RecommendView,
     featureView,
     TabControl,
+    GoodsList,
+    Scroll,
   },
   data() {
     return {
       banners: [],
       recommends: [],
+      goods: {
+        pop: {
+          page: 0,
+          list: [],
+        },
+        new: {
+          page: 0,
+          list: [],
+        },
+        sell: {
+          page: 0,
+          list: [],
+        },
+      },
+      currentType: "pop",
     };
   },
+  methods: {
+    /**
+     * 事件监听相关方法
+     */
+    tabClick(index) {
+      switch (index) {
+        case 0:
+          this.currentType = "pop";
+          break;
+        case 1:
+          this.currentType = "new";
+          break;
+        case 2:
+          this.currentType = "sell";
+          break;
+      }
+    },
+    /**
+     * 网络请求相关方法
+     */
+    getHomeMultidata() {
+      getHomeMultidata().then((res) => {
+        this.banners = res.data.banner.list;
+        this.recommends = res.data.recommend.list;
+      });
+    },
+
+    getHomeGoods(type) {
+      const page = this.goods[type].page + 1;
+      getHomeGoods(type, page).then((res) => {
+        console.log(res);
+        this.goods[type].list.push(...res.data.list);
+        this.goods[type].page += 1;
+      });
+    },
+  },
   created() {
-    getHomeMultidata().then((res) => {
-      this.banners = res.data.banner.list;
-      this.recommends = res.data.recommend.list;
-    });
+    this.getHomeMultidata();
+    this.getHomeGoods("pop");
+    this.getHomeGoods("new");
+    this.getHomeGoods("sell");
   },
 };
 </script>
@@ -47,7 +107,7 @@ export default {
 <style scoped>
 #home {
   padding-top: 44px;
-  height: 3000px;
+  height: 100vh;
 }
 .home-nav {
   background-color: var(--color-tint);
@@ -61,5 +121,10 @@ export default {
 .tabcontrol {
   position: sticky;
   top: 44px;
+  z-index: 9;
+}
+.content {
+  height: 400px;
+  overflow: hidden;
 }
 </style>
